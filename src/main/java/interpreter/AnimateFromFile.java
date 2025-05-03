@@ -45,13 +45,13 @@ public class AnimateFromFile {
                     new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
 
             for (int i = 0; i < n; i++) {
-                g.addVertex("V" + i);
+                g.addVertex("PC" + i);
             }
 
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < grafo[i].length; j++) {
                     if (i != j && grafo[i][j] != 0.0) {
-                        DefaultWeightedEdge e = g.addEdge("V" + i, "V" + j);
+                        DefaultWeightedEdge e = g.addEdge("PC" + i, "PC" + j);
                         g.setEdgeWeight(e, grafo[i][j]);
                     }
                 }

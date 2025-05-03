@@ -10,7 +10,7 @@ import java.io.IOException;
 public class AgSolver extends AgMethods{
 	static final private Random rand = new Random();
 	static final private int POP_SIZE = 20;
-	static final private int GEN = 100;
+	static final private int GEN = 20;
 	static final private double MU_TAX = 0.01;
 	
 	static public Individual bestRealocate(double[][] A, double[] b) {
@@ -19,6 +19,7 @@ public class AgSolver extends AgMethods{
 
 	static private Individual runAg(double[][] A, double[] b) {
 	    Individual template = new Individual(A, b);
+	    
 	    List<Individual> population = Arrays.asList(init_pop(template));
 
 	    Individual best = null;

@@ -29,46 +29,35 @@ public class Individual {
     }
 
     public Individual mutate() {
-        int n = b.length;
-        int i = rand.nextInt(n);
-        int j = rand.nextInt(n);
-        while (j == i) {
-            j = rand.nextInt(n);
-        }
-        double[][] mutG = deepCopy(this.grafo);
-        double[] mutB = Arrays.copyOf(this.b, n);
-        double[] tmpRow = mutG[i];
-        mutG[i] = mutG[j];
-        mutG[j] = tmpRow;
-        for (int k = 0; k < n; k++) {
-            double tmp = mutG[k][i];
-            mutG[k][i] = mutG[k][j];
-            mutG[k][j] = tmp;
-        }
-        double tmpB = mutB[i];
-        mutB[i] = mutB[j];
-        mutB[j] = tmpB;
-
-        return new Individual(mutG, mutB);
+        return this;
     }
 
     public Individual randomize() {
-        int n = b.length;
-        int[] perm = new int[n];
-        for (int i = 0; i < n; i++) perm[i] = i;
+        int n = this.getGrafo().length;
+        int[] indices = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            indices[i] = i;
+        }
+
+        Random rand = new Random();
         for (int i = n - 1; i > 0; i--) {
             int j = rand.nextInt(i + 1);
-            int tmp = perm[i]; perm[i] = perm[j]; perm[j] = tmp;
+            int temp = indices[i];
+            indices[i] = indices[j];
+            indices[j] = temp;
         }
-        double[][] newG = new double[n][n];
-        double[] newB = new double[n];
+
+        double[][] novaA = new double[n][n];
+        double[] novoB = new double[n];
+
         for (int i = 0; i < n; i++) {
-            newB[i] = this.b[perm[i]];
+            novoB[i] = b[indices[i]];
             for (int j = 0; j < n; j++) {
-                newG[i][j] = this.grafo[perm[i]][perm[j]];
+                novaA[i][j] = this.getGrafo()[indices[i]][indices[j]];
             }
         }
-        return new Individual(newG, newB);
+        return new Individual(novaA, novoB);
     }
 
 

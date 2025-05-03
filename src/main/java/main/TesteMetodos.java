@@ -16,9 +16,7 @@ public class TesteMetodos {
         };
         double[] b = {500, 300, 700, 350, 400};
         
-        System.out.println(Solver.resolverEquacao(A, b, 2)[0]);
         Individual best = AgSolver.bestRealocate(A, b);
-        System.out.println(best);
         System.out.println(Solver.resolverEquacao(best.getGrafo(), best.getB(), 2)[0]);
     }
 
