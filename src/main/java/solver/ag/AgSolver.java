@@ -9,9 +9,9 @@ import java.io.IOException;
 
 public class AgSolver extends AgMethods{
 	static final private Random rand = new Random();
-	static final private int POP_SIZE = 20;
-	static final private int GEN = 20;
-	static final private double MU_TAX = 0.01;
+	static final private int POP_SIZE = 10;
+	static final private int GEN = 10;
+	static final private double MU_TAX = 0;
 	
 	static public Individual bestRealocate(double[][] A, double[] b) {
 		return AgSolver.runAg(A, b);
@@ -35,14 +35,13 @@ public class AgSolver extends AgMethods{
 	            if (fitness[i] > bestFitness) {
 	                bestFitness = fitness[i];
 	                best = population.get(i).copy();
+		            historicoJson.append("  {\n");
+		            historicoJson.append("    \"geracao\": ").append(gen).append(",\n");
+		            historicoJson.append("    \"grafo\": ").append(matrizToJson(population.get(i).getGrafo())).append(",\n");
+		            historicoJson.append("    \"b\": ").append(vetorToJson(population.get(i).getB())).append(",\n");
+		            historicoJson.append("    \"fitness\": ").append(fitness[i]).append("\n");
+		            historicoJson.append("  },\n");
 	            }
-
-	            historicoJson.append("  {\n");
-	            historicoJson.append("    \"geracao\": ").append(gen).append(",\n");
-	            historicoJson.append("    \"grafo\": ").append(matrizToJson(population.get(i).getGrafo())).append(",\n");
-	            historicoJson.append("    \"b\": ").append(vetorToJson(population.get(i).getB())).append(",\n");
-	            historicoJson.append("    \"fitness\": ").append(fitness[i]).append("\n");
-	            historicoJson.append("  },\n");
 	        }
 
 	        List<Individual> newPop = new ArrayList<>(POP_SIZE);
@@ -53,7 +52,6 @@ public class AgSolver extends AgMethods{
 	            newPop.add(filho);
 	        }
 	        population = newPop;
-	        System.out.println(gen + " - best: " + bestFitness);
 	    }
 
 	    if (historicoJson.lastIndexOf(",") == historicoJson.length() - 2) {
