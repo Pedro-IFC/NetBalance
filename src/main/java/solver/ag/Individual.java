@@ -15,69 +15,92 @@ public class Individual {
         this.b = Arrays.copyOf(b, b.length);
     }
     public double fitness() {
-    	double[] numeros = Solver.resolverEquacao(this.grafo, this.b, 2);
-        if (numeros == null || numeros.length == 0) {
-            throw new IllegalArgumentException("O array não pode ser nulo ou vazio.");
-        }
+    	try {
+    	    double[] numeros = Solver.resolverEquacao(this.grafo, this.b, 2);
 
-        double soma = 0.0;
-        for (double num : numeros) {
-            soma += num;
-        }
+    	    if (numeros == null || numeros.length == 0) {
+    	        return 0.0;
+    	    }
 
-        return 1/(soma / numeros.length);
+    	    double soma = 0.0;
+            for (double num : numeros) {
+                if(num<0)
+            	    return 0;
+            	soma += num;
+            }
+
+    	    return 1 / (soma / numeros.length);
+    	} catch (Exception e) {
+    	    return 0.0;
+    	}
     }
-
     public Individual mutate() {
-        return this;
+        double[][] novoGrafo = deepCopy(this.grafo);
+        int n = novoGrafo.length;
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                double pesoAtual = novoGrafo[i][j];
+                double variacao = (rand.nextDouble() * 2 - 1) * 20;
+                if (pesoAtual > 0) {
+                    double novoPeso = Math.max(0, pesoAtual + variacao);
+                    novoGrafo[i][j] = novoPeso;
+                    novoGrafo[j][i] = novoPeso;
+                } else if (pesoAtual < 0) {
+                    double novoPeso = Math.min(0, pesoAtual - variacao);
+                    novoGrafo[i][j] = novoPeso;
+                    novoGrafo[j][i] = novoPeso;
+                }
+            }
+        }
+        return new Individual(novoGrafo, this.b);
     }
 
     public Individual randomize() {
-        int n = this.getGrafo().length;
-        int[] indices = new int[n];
-
+        double[][] novoGrafo = deepCopy(this.grafo);
+        int n = novoGrafo.length;
         for (int i = 0; i < n; i++) {
-            indices[i] = i;
-        }
-
-        Random rand = new Random();
-        for (int i = n - 1; i > 0; i--) {
-            int j = rand.nextInt(i + 1);
-            int temp = indices[i];
-            indices[i] = indices[j];
-            indices[j] = temp;
-        }
-
-        double[][] novaA = new double[n][n];
-        double[] novoB = new double[n];
-
-        for (int i = 0; i < n; i++) {
-            novoB[i] = b[indices[i]];
-            for (int j = 0; j < n; j++) {
-                novaA[i][j] = this.getGrafo()[indices[i]][indices[j]];
+            for (int j = i + 1; j < n; j++) {
+                double pesoAtual = novoGrafo[i][j];
+                double variacao = (rand.nextDouble() * 2 - 1) * 20;
+                if (pesoAtual > 0) {
+                    double novoPeso = Math.max(0, pesoAtual + variacao);
+                    novoGrafo[i][j] = novoPeso;
+                    novoGrafo[j][i] = novoPeso;
+                } else if (pesoAtual < 0) {
+                    double novoPeso = Math.min(0, pesoAtual - variacao);
+                    novoGrafo[i][j] = novoPeso;
+                    novoGrafo[j][i] = novoPeso;
+                }
             }
         }
-        return new Individual(novaA, novoB);
+        return new Individual(novoGrafo, this.b);
     }
-
 
     public Individual cross(Individual par) {
-        int n = b.length;
-        double[][] newG = new double[n][n];
-        double[] newB = new double[n];
+        double[][] grafoPai1 = this.grafo;
+        double[][] grafoPai2 = par.getGrafo();
+        int n = grafoPai1.length;
+        double[][] filho = new double[n][n];
 
         for (int i = 0; i < n; i++) {
-            newB[i] = rand.nextBoolean() ? this.b[i] : par.b[i];
-            for (int j = 0; j < n; j++) {
-                newG[i][j] = rand.nextBoolean()
-                            ? this.grafo[i][j]
-                            : par.grafo[i][j];
+            for (int j = i + 1; j < n; j++) {
+                double peso1 = grafoPai1[i][j];
+                double peso2 = grafoPai2[i][j];
+                double pesoEscolhido = rand.nextBoolean() ? peso1 : peso2;
+                if (peso1 > 0) {
+                    pesoEscolhido = Math.abs(pesoEscolhido);
+                } else if (peso1 < 0) {
+                    pesoEscolhido = -Math.abs(pesoEscolhido);
+                } else {
+                    pesoEscolhido = 0.0;
+                }
+                filho[i][j] = pesoEscolhido;
+                filho[j][i] = pesoEscolhido;
             }
         }
-        return new Individual(newG, newB);
+
+        return new Individual(filho, this.b);
     }
-
-
     public Individual copy() {
         Individual ind = new Individual(this.grafo, this.b);
         return ind;

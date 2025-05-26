@@ -10,11 +10,10 @@ import org.json.JSONObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class AnimateFromFile {
 
@@ -25,6 +24,16 @@ public class AnimateFromFile {
         Path pastaGrafos = Paths.get("grafos");
         if (!Files.exists(pastaGrafos)) {
             Files.createDirectory(pastaGrafos);
+        } else {
+            try (Stream<Path> arquivos = Files.list(pastaGrafos)) {
+                arquivos.forEach(arquivo -> {
+                    try {
+                        Files.deleteIfExists(arquivo);
+                    } catch (IOException e) {
+                        System.err.println("Erro ao deletar arquivo: " + arquivo + " - " + e.getMessage());
+                    }
+                });
+            }
         }
 
         for (int indice = 0; indice < individuos.length(); indice++) {

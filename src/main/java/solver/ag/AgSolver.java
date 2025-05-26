@@ -11,7 +11,7 @@ public class AgSolver extends AgMethods{
 	static final private Random rand = new Random();
 	static final private int POP_SIZE = 10;
 	static final private int GEN = 10;
-	static final private double MU_TAX = 0;
+	static final private double MU_TAX = 0.05;
 	
 	static public Individual bestRealocate(double[][] A, double[] b) {
 		return AgSolver.runAg(A, b);
@@ -28,7 +28,14 @@ public class AgSolver extends AgMethods{
 	    StringBuilder historicoJson = new StringBuilder();
 	    historicoJson.append("[\n");
 
-	    for (int gen = 0; gen < GEN; gen++) {
+        historicoJson.append("  {\n");
+        historicoJson.append("    \"geracao\": ").append(0).append(",\n");
+        historicoJson.append("    \"grafo\": ").append(matrizToJson(A)).append(",\n");
+        historicoJson.append("    \"b\": ").append(vetorToJson(b)).append(",\n");
+        historicoJson.append("    \"fitness\": ").append(template.fitness()).append("\n");
+        historicoJson.append("  },\n");
+
+        for (int gen = 0; gen < GEN; gen++) {
 	        double[] fitness = new double[population.size()];
 	        for (int i = 0; i < population.size(); i++) {
 	            fitness[i] = population.get(i).fitness();
@@ -36,7 +43,7 @@ public class AgSolver extends AgMethods{
 	                bestFitness = fitness[i];
 	                best = population.get(i).copy();
 		            historicoJson.append("  {\n");
-		            historicoJson.append("    \"geracao\": ").append(gen).append(",\n");
+		            historicoJson.append("    \"geracao\": ").append(gen+1).append(",\n");
 		            historicoJson.append("    \"grafo\": ").append(matrizToJson(population.get(i).getGrafo())).append(",\n");
 		            historicoJson.append("    \"b\": ").append(vetorToJson(population.get(i).getB())).append(",\n");
 		            historicoJson.append("    \"fitness\": ").append(fitness[i]).append("\n");
@@ -46,7 +53,7 @@ public class AgSolver extends AgMethods{
 
 	        List<Individual> newPop = new ArrayList<>(POP_SIZE);
 	        while (newPop.size() < POP_SIZE) {
-	            Individual[] pais = selectParentRoletaViciada(population, fitness);
+	            Individual[] pais = selectParentTorneio(population, fitness);
 	            Individual filho = crossover(pais[0], pais[1]);
 	            filho = mutation(filho);
 	            newPop.add(filho);
@@ -67,16 +74,6 @@ public class AgSolver extends AgMethods{
 	    }
 
 	    return best;
-	}
-	private static String arrayToJson(double[] array) {
-	    StringBuilder sb = new StringBuilder();
-	    sb.append("[");
-	    for (int i = 0; i < array.length; i++) {
-	        sb.append(array[i]);
-	        if (i < array.length - 1) sb.append(", ");
-	    }
-	    sb.append("]");
-	    return sb.toString();
 	}
 	private static String matrizToJson(double[][] matriz) {
 	    StringBuilder sb = new StringBuilder();
@@ -106,7 +103,8 @@ public class AgSolver extends AgMethods{
 
     static private Individual[] init_pop(Individual ind) {
         Individual[] response = new Individual[POP_SIZE];
-        for (int i = 0; i < POP_SIZE; i++) {
+        response[0]=ind.copy();
+        for (int i = 1; i < POP_SIZE; i++) {
             response[i] = ind.copy().randomize();
         }
         return response;
