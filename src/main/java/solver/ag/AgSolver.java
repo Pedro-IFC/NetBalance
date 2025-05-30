@@ -6,14 +6,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+
+import solver.Solver;
+
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class AgSolver extends AgMethods{
 	static final private Random rand = new Random();
-	static final private int POP_SIZE = 20;
-	static final private int GEN = 20;
-	static final private double MU_TAX = 0.01;
+	static final private int POP_SIZE = 500;
+	static final private int GEN = 200;
+	static final private double MU_TAX = 0.1;
 	
 
     static public Individual bestRealocateIsland(double[][] posicoesIniciais, double[][] minimo, double[][] maximo, double[] b, 
@@ -163,7 +166,7 @@ public class AgSolver extends AgMethods{
 	            if (fitness[i] > bestFitness) {
 	                bestFitness = fitness[i];
 	                best = population.get(i).copy();
-		            historicoJson.append("  {\n");
+	                historicoJson.append("  {\n");
 		            historicoJson.append("    \"geracao\": ").append(gen+1).append(",\n");
 		            historicoJson.append("    \"grafo\": ").append(matrizToJson(population.get(i).getGrafo())).append(",\n");
 		            historicoJson.append("    \"b\": ").append(vetorToJson(population.get(i).getB())).append(",\n");

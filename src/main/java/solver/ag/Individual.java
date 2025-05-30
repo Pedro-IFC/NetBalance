@@ -2,6 +2,7 @@ package solver.ag;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import solver.Solver;
 
@@ -22,7 +23,10 @@ public class Individual {
         
         for (int i = 0; i < grafo.length; i++) {
             for (int j = 0; j < grafo[i].length; j++) {
-            	double val = this.posicoes[i][j] * rand.nextDouble() * (maximo[i][j] - minimo[i][j]);
+            	double val= 0.0;
+            	if(maximo[i][j]>0){
+            		val = this.posicoes[i][j] * ThreadLocalRandom.current().nextDouble(minimo[i][j], maximo[i][j]);
+            	}
             	grafo[i][j] = val;
             	grafo[j][i] = val;
             }

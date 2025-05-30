@@ -54,13 +54,6 @@ public class TesteMetodos {
         
         Individual best = AgSolver.bestRealocate(posicoesIniciais, minimo, maximo, b);
 
-        System.out.println("\nFinal: " + best);
-        System.out.println("Solução: \n");
-        sol = Solver.resolverEquacao(best.getGrafo(), best.getB(), 2);
-        for(double s : sol) {
-            System.out.println("== "+s+" \n ");
-        }
-        System.out.println("Fitness: " + best.fitness(tester));
 	}
 
 }

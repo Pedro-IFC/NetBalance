@@ -9,7 +9,7 @@ from PIL import Image, ImageOps
 tamanho_padrao = (800, 600)  # largura, altura
 cor_fundo = (255, 255, 255)  # Branco (ou use (0, 0, 0) para preto)
 
-pasta = "C:\\Users\\pdani\\Documents\\NetBalance\\grafos"
+pasta = "B:\\Documentos\\NetBalance\\grafos"
 arquivos_dot = sorted(glob.glob(os.path.join(pasta, "*.dot")))
 pasta_img = "imgs_tmp"
 
