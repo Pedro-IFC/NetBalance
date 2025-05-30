@@ -6,139 +6,130 @@ import java.util.Random;
 import solver.Solver;
 
 public class Individual {
-    private double[][] grafo;
-    private double[] b;
     private static final Random rand = new Random();
+    private double[][] grafo;
+    private double[][] posicoes;
+    private double[][] minimo;
+    private double[][] maximo;
+    private double[] b;
 
-    public Individual(double[][] grafo, double[] b) {
-        this.grafo = deepCopy(grafo);
-        this.b = Arrays.copyOf(b, b.length);
-    }
-    public double fitness() {
-    	try {
-    	    double[] numeros = Solver.resolverEquacao(this.grafo, this.b, 2);
-
-    	    if (numeros == null || numeros.length == 0) {
-    	        return 0.0;
-    	    }
-
-    	    double soma = 0.0;
-            for (double num : numeros) {
-                if(num<0)
-            	    return 0;
-            	soma += num;
+    public Individual(double[][] posicoesIniciais, double[][] minimo, double[][] maximo, double[] b) {
+        this.minimo = minimo;
+        this.posicoes = posicoesIniciais;
+        this.maximo = maximo;
+        this.b = b;
+        this.grafo = new double[posicoesIniciais.length][posicoesIniciais[0].length];
+        
+        for (int i = 0; i < grafo.length; i++) {
+            for (int j = 0; j < grafo[i].length; j++) {
+            	double val = this.posicoes[i][j] * rand.nextDouble() * (maximo[i][j] - minimo[i][j]);
+            	grafo[i][j] = val;
+            	grafo[j][i] = val;
             }
+        }
+    }
+    
+    public double fitness(double[][] tester) {
+    	try {
+    		double supersoma = 0;
+    		for(int k = 0; k<10; k++) {
+    	        double[][] newGrafo = new double[posicoes.length][posicoes.length];
+    	        for (int i = 0; i < posicoes.length; i++) {
+    	            for (int j = 0; j < posicoes.length; j++) {
+    	            	newGrafo[i][j] = posicoes[i][j] * tester[i][j];
+    	            	newGrafo[j][i] = posicoes[i][j] * tester[j][i];
+    	            }
+    	        }
+        	    double[] numeros = Solver.resolverEquacao(newGrafo, this.b, 2);
 
-    	    return 1 / (soma / numeros.length);
+        	    if (numeros == null || numeros.length == 0) {
+        	        return 0.0;
+        	    }
+
+        	    double soma = 0.0;
+                for (double num : numeros) {
+                    soma = soma + (num<0? -num:num);
+                }
+                supersoma+=10*(1/ (soma / numeros.length));
+    		}
+    	    return supersoma/10;
     	} catch (Exception e) {
     	    return 0.0;
     	}
     }
-    public Individual mutate() {
-        double[][] novoGrafo = deepCopy(this.grafo);
-        int n = novoGrafo.length;
-        for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {
-                double pesoAtual = novoGrafo[i][j];
-                double variacao = (rand.nextDouble() * 2 - 1) * 20;
-                if (pesoAtual > 0) {
-                    double novoPeso = Math.max(0, pesoAtual + variacao);
-                    novoGrafo[i][j] = novoPeso;
-                    novoGrafo[j][i] = novoPeso;
-                } else if (pesoAtual < 0) {
-                    double novoPeso = Math.min(0, pesoAtual - variacao);
-                    novoGrafo[i][j] = novoPeso;
-                    novoGrafo[j][i] = novoPeso;
-                }
+
+    public Individual mutate(double MU_TAX) {
+        double[][] newGrafo = new double[posicoes.length][posicoes.length];
+        for (int i = 0; i < posicoes.length; i++) {
+            newGrafo[i] = Arrays.copyOf(posicoes[i], posicoes[i].length);
+        }
+        for (int i = 0; i < newGrafo.length; i++) {
+            for (int j = 0; j < newGrafo.length; j++) {
+            	if(i!=j) {
+                	if(((1.0 - 0.01) * rand.nextDouble()) < MU_TAX) {
+                		newGrafo[i][j] = -(newGrafo[i][j]-1);
+                		newGrafo[j][i] = -(newGrafo[j][i]-1);
+                	}
+            	}
             }
         }
-        return new Individual(novoGrafo, this.b);
+
+        return new Individual(newGrafo, this.minimo, this.maximo, this.b);
     }
 
     public Individual randomize() {
-        double[][] novoGrafo = deepCopy(this.grafo);
-        int n = novoGrafo.length;
-        for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {
-                double pesoAtual = novoGrafo[i][j];
-                double variacao = (rand.nextDouble() * 2 - 1) * 20;
-                if (pesoAtual > 0) {
-                    double novoPeso = Math.max(0, pesoAtual + variacao);
-                    novoGrafo[i][j] = novoPeso;
-                    novoGrafo[j][i] = novoPeso;
-                } else if (pesoAtual < 0) {
-                    double novoPeso = Math.min(0, pesoAtual - variacao);
-                    novoGrafo[i][j] = novoPeso;
-                    novoGrafo[j][i] = novoPeso;
-                }
+        double[][] newGrafo = new double[posicoes.length][posicoes.length];
+        
+        for (int i = 0; i < newGrafo.length; i++) {
+            for (int j = 0; j < newGrafo.length; j++) {
+            	if(i!=j) {
+	            	newGrafo[j][i] = 0;
+	            	newGrafo[i][j] = 0;
+	            	if(rand.nextDouble() < 0.5) {
+		            	newGrafo[j][i] = 1;
+		            	newGrafo[i][j] = 1;
+	            	}
+            	}else {
+            		newGrafo[i][j] = 1;
+            	}
             }
         }
-        return new Individual(novoGrafo, this.b);
+        return new Individual(newGrafo, this.minimo, this.maximo, this.b);
     }
 
     public Individual cross(Individual par) {
-        double[][] grafoPai1 = this.grafo;
-        double[][] grafoPai2 = par.getGrafo();
-        int n = grafoPai1.length;
-        double[][] filho = new double[n][n];
-
-        for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {
-                double peso1 = grafoPai1[i][j];
-                double peso2 = grafoPai2[i][j];
-                double pesoEscolhido = rand.nextBoolean() ? peso1 : peso2;
-                if (peso1 > 0) {
-                    pesoEscolhido = Math.abs(pesoEscolhido);
-                } else if (peso1 < 0) {
-                    pesoEscolhido = -Math.abs(pesoEscolhido);
-                } else {
-                    pesoEscolhido = 0.0;
+        double[][] newGrafo = new double[posicoes.length][posicoes.length];
+        for (int i = 0; i < posicoes.length; i++) {
+            for (int j = 0; j < posicoes[i].length; j++) {
+            	if(i!=j) {
+            		double k = rand.nextBoolean() ? this.posicoes[i][j] : par.posicoes[i][j];
+                    newGrafo[i][j] = k;
+                    newGrafo[j][i] = k;
                 }
-                filho[i][j] = pesoEscolhido;
-                filho[j][i] = pesoEscolhido;
             }
         }
-
-        return new Individual(filho, this.b);
+        return new Individual(newGrafo, minimo, maximo, b);
     }
+
+    public double[][] getGrafo() {
+        return grafo;
+    }
+
+    public double[] getB() {
+        return b;
+    }
+
     public Individual copy() {
-        Individual ind = new Individual(this.grafo, this.b);
+        Individual ind = new Individual(this.posicoes, this.maximo, this.minimo, this.b);
         return ind;
     }
-
-    private double[][] deepCopy(double[][] matrix) {
-        double[][] copy = new double[matrix.length][];
-        for (int i = 0; i < matrix.length; i++) {
-            copy[i] = Arrays.copyOf(matrix[i], matrix[i].length);
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Individual:\n");
+        for (double[] linha : posicoes) {
+            sb.append(Arrays.toString(linha)).append("\n");
         }
-        return copy;
+        return sb.toString();
     }
-    
-	public double[][] getGrafo() {
-		return grafo;
-	}
-	public void setGrafo(double[][] grafo) {
-		this.grafo = grafo;
-	}
-	
-	public double[] getB() {
-		return b;
-	}
-	public void setB(double[] b) {
-		this.b = b;
-	}
-	@Override
-	public String toString() {
-	    StringBuilder sb = new StringBuilder();
-	    sb.append("Individual:\n");
-	    sb.append("  grafo = [\n");
-	    for (double[] linha : grafo) {
-	        sb.append("    ").append(Arrays.toString(linha)).append("\n");
-	    }
-	    sb.append("  ]\n");
-	    sb.append("  b = ").append(Arrays.toString(b)).append("\n");
-	    return sb.toString();
-	}
-
-	
 }

@@ -4,6 +4,10 @@ import shutil
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from graphviz import Source
+from PIL import Image, ImageOps
+
+tamanho_padrao = (800, 600)  # largura, altura
+cor_fundo = (255, 255, 255)  # Branco (ou use (0, 0, 0) para preto)
 
 pasta = "C:\\Users\\pdani\\Documents\\NetBalance\\grafos"
 arquivos_dot = sorted(glob.glob(os.path.join(pasta, "*.dot")))
@@ -19,7 +23,22 @@ for i, caminho_dot in enumerate(arquivos_dot):
     src = Source.from_file(caminho_dot)
     src.format = "png"
     src.render(filename=nome_png, cleanup=True)
-    imagens.append(nome_png + ".png")
+    caminho_img = nome_png + ".png"
+
+    # Abrir e ajustar com centralização
+    with Image.open(caminho_img) as im:
+        im = ImageOps.contain(im, tamanho_padrao)  # Redimensiona mantendo proporção
+        fundo = Image.new("RGB", tamanho_padrao, cor_fundo)
+        pos = (
+            (tamanho_padrao[0] - im.width) // 2,
+            (tamanho_padrao[1] - im.height) // 2
+        )
+        fundo.paste(im, pos)
+        fundo.save(caminho_img)
+
+    imagens.append(caminho_img)
+
+
 
 indice_atual = {'valor': 0}
 
