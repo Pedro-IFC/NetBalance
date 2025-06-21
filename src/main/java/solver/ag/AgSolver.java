@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class AgSolver extends AgMethods{
 	static final private Random rand = new Random();
-	static final private int POP_SIZE = 500;
+	static final private int POP_SIZE = 200;
 	static final private int GEN = 200;
 	static final private double MU_TAX = 0.1;
 	
@@ -161,9 +161,10 @@ public class AgSolver extends AgMethods{
 
         for (int gen = 0; gen < GEN; gen++) {
 	        double[] fitness = new double[population.size()];
+	        bestFitness = population.get(0).fitness(tester);
 	        for (int i = 0; i < population.size(); i++) {
 	            fitness[i] = population.get(i).fitness(tester);
-	            if (fitness[i] > bestFitness) {
+	            if (fitness[i] >= bestFitness) {
 	                bestFitness = fitness[i];
 	                best = population.get(i).copy();
 	                historicoJson.append("  {\n");

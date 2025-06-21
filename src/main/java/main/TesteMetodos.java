@@ -31,7 +31,7 @@ public class TesteMetodos {
             {0, 0, 80, 100, 80},
             {0, 0, 0, 80, 100}
         };
-        double[] b = {125, 75, 175, 87.5, 100};
+        double[] b = {200, 75, 175, 90, 100};
 
 		double[][] tester = new double[posicoesIniciais.length][posicoesIniciais.length];
         
